@@ -15,8 +15,8 @@ struct Environment {
 }
 
 #[derive(Clone, Debug)]
-struct AppState {
-    database: Arc<Pool<Postgres>>,
+pub struct AppState {
+    pub database: Pool<Postgres>,
 }
 
 #[get("/")]
@@ -30,7 +30,7 @@ async fn main() -> std::io::Result<()> {
     let environment = make_environment().unwrap();
     let pool = make_pool(&environment.database_url).await.unwrap();
     let state = AppState {
-        database: Arc::new(pool),
+        database: pool,
     };
     run_server(environment.url, environment.port, state).await
 }

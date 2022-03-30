@@ -9,7 +9,7 @@ edition = "2021"
 actix-web = "4"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-sqlx = { version = "0.5.5", features = [ "runtime-actix-native-tls", "postgres", "macros", "migrate", "chrono", "offline" ] }
+sqlx = { version = "0.5.5", features = [ "runtime-actix-native-tls", "postgres", "macros", "migrate", "chrono", "offline", "uuid" ] }
 dotenv = "0.15.0"
 envy = "0.4.2"
 rand = "0.8.5"
