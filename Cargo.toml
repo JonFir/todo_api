@@ -17,3 +17,7 @@ rust-argon2 = "1.0.0"
 jsonwebtoken = "8.0.1"
 chrono = "0.4.19"
 futures-util = "0.3"
+
+[lib]
+name = "configuration"
+path = "src/configuration/lib.rs"

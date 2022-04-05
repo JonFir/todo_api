@@ -1,0 +1,16 @@
+use serde::Deserialize;
+
+#[derive(Deserialize, Clone)]
+pub struct Environment {
+    pub url: String,
+    pub port: u16,
+    pub database_url: String,
+    pub jwt_secret: String,
+}
+
+impl Environment {
+    pub fn load() -> Result<Environment, envy::Error> {
+        dotenv::dotenv().ok();
+        envy::from_env::<Environment>()
+    }
+}

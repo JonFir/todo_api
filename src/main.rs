@@ -1,24 +1,9 @@
 use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
-use dotenv;
-use serde::Deserialize;
+use configuration::{AppState, Environment};
 use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
 mod api;
 mod middleware;
 use std::sync::Arc;
-
-#[derive(Deserialize, Clone)]
-pub struct Environment {
-    url: String,
-    port: u16,
-    database_url: String,
-    jwt_secret: String,
-}
-
-#[derive(Clone)]
-pub struct AppState {
-    pub database: Pool<Postgres>,
-    pub environment: Environment,
-}
 
 #[get("/")]
 async fn hello() -> impl Responder {
@@ -27,18 +12,13 @@ async fn hello() -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    dotenv::dotenv().ok();
-    let environment = make_environment().unwrap();
+    let environment = Environment::load().unwrap();
     let pool = make_pool(&environment.database_url).await.unwrap();
     let state = Arc::new(AppState {
         database: pool,
         environment: environment.clone(),
     });
     run_server(environment.url, environment.port, state).await
-}
-
-fn make_environment() -> Result<Environment, envy::Error> {
-    envy::from_env::<Environment>()
 }
 
 async fn make_pool(uri: &str) -> Result<Pool<Postgres>, sqlx::Error> {
@@ -56,7 +36,7 @@ async fn run_server(url: String, port: u16, state: Arc<AppState>) -> Result<(), 
             )
             .service(
                 web::scope("/api")
-                    .wrap(middleware::JWTAuth::Transformer {
+                    .wrap(middleware::jwt_auth::Transformer {
                         app_state: state.clone(),
                     })
                     .service(hello),

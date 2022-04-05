@@ -1,1 +1,1 @@
-pub mod JWTAuth;
+pub mod jwt_auth;
