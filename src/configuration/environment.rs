@@ -13,4 +13,8 @@ impl Environment {
         dotenv::dotenv().ok();
         envy::from_env::<Environment>()
     }
+
+    pub fn socket_addrs(&self) -> (String, u16) {
+        (self.url.to_owned(), self.port)
+    }
 }
