@@ -1,9 +1,10 @@
 use std::sync::Arc;
 
 use actix_web::{web, App, HttpServer, get, Responder, HttpResponse};
-use configuration::AppState;
+use crate::configuration::AppState;
 
-use crate::{api, middleware};
+use crate::features::jwt_auth;
+use crate::{api};
 
 #[get("/")]
 async fn hello() -> impl Responder {
@@ -21,7 +22,7 @@ pub async fn run(address: (String, u16), state: Arc<AppState>) -> Result<(), std
             )
             .service(
                 web::scope("/api")
-                    .wrap(middleware::jwt_auth::Transformer {
+                    .wrap(jwt_auth::Middleware {
                         app_state: state.clone(),
                     })
                     .service(hello),

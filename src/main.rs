@@ -1,18 +1,19 @@
 use configuration::{AppState, Environment};
 use log::error;
+use std::{error::Error, sync::Arc};
 
 mod api;
 mod db;
-mod middleware;
+mod features;
 mod server;
-use std::{sync::Arc, error::Error};
+mod configuration;
 
 #[actix_web::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     env_logger::init();
     let result = run().await;
     if let Err(e) = result.as_ref() {
-        error!("Critical error: {:?}", e)
+        error!("{:?}", e)
     }
     result
 }

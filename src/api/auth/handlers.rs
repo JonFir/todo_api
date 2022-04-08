@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use crate::AppState;
+use crate::features::jwt_auth;
 
 use super::payloads::RegisterPayload;
 use actix_web::{post, web, HttpResponse, Responder};
@@ -9,7 +10,6 @@ use chrono;
 use jsonwebtoken::EncodingKey;
 use rand::distributions::Alphanumeric;
 use rand::{thread_rng, Rng};
-use serde::{Deserialize, Serialize};
 use serde_json::json;
 use sqlx::types::Uuid;
 
@@ -79,12 +79,6 @@ pub async fn register(
     HttpResponse::Ok().body("ok")
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Claims {
-    pub sub: String,
-    pub exp: usize,
-}
-
 #[post("/login")]
 pub async fn login(
     payload: web::Json<RegisterPayload>,
@@ -102,18 +96,7 @@ pub async fn login(
     let result = argon2::verify_encoded(&user.hash, payload.password.as_bytes()).unwrap();
 
     if result {
-        let time = chrono::Utc::now() + chrono::Duration::days(365);
-        let claims = Claims {
-            sub: user.id.to_string(),
-            exp: time.timestamp() as usize,
-        };
-
-        let token = jsonwebtoken::encode(
-            &jsonwebtoken::Header::default(),
-            &claims,
-            &EncodingKey::from_secret(data.environment.jwt_secret.as_ref()),
-        )
-        .unwrap();
+        let token = jwt_auth::token::encode(user.id.to_string(), &data.environment.jwt_secret).unwrap();
         return HttpResponse::Ok().json(json!({ "token": token }));
     } else {
         return HttpResponse::Ok().body("usser not found 2");

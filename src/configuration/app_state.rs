@@ -1,6 +1,6 @@
 use sqlx::{Pool, Postgres};
 
-use crate::environment::Environment;
+use super::Environment;
 
 #[derive(Clone)]
 pub struct AppState {
