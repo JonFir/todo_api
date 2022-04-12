@@ -13,7 +13,7 @@ use std::sync::Arc;
 enum TokenParseResult {
     Token(jsonwebtoken::TokenData<Claims>),
     Missing,
-    DecodeError(jsonwebtoken::errors::Error),
+    DecodeError(crate::common::error::Error),
 }
 
 pub struct JwtService<S> {
@@ -38,30 +38,34 @@ where
             |request: ServiceRequest, response: HttpResponse| -> Self::Future {
                 let (request, _) = request.into_parts();
                 let response = response.map_into_right_body();
-                return Box::pin(async { Ok(ServiceResponse::new(request, response)) });
+                Box::pin(async { Ok(ServiceResponse::new(request, response)) })
             };
 
-        let parse_token = |request: &ServiceRequest, jwt_secret: &str| -> TokenParseResult {
-            let token_parts = request
-                .headers()
-                .get("Authorization")
-                .and_then(|v| v.to_str().ok())
-                .unwrap_or("")
-                .split(" ")
-                .collect::<Vec<&str>>();
+        let parse_token =
+            |request: &ServiceRequest, jwt_secret: &str| -> TokenParseResult {
+                let token_parts = request
+                    .headers()
+                    .get("Authorization")
+                    .and_then(|v| v.to_str().ok())
+                    .unwrap_or("")
+                    .split(" ")
+                    .collect::<Vec<&str>>();
 
-            if token_parts.len() != 2 || !token_parts.first().unwrap_or(&"").eq(&"Bearer") {
-                return TokenParseResult::Missing;
-            }
-            let token = token_parts[1];
-            let token = token::decode(token, jwt_secret);
-            match token {
-                Ok(v) => TokenParseResult::Token(v),
-                Err(e) => TokenParseResult::DecodeError(e),
-            }
-        };
+                if token_parts.len() != 2
+                    || !token_parts.first().unwrap_or(&"").eq(&"Bearer")
+                {
+                    return TokenParseResult::Missing;
+                }
+                let token = token_parts[1];
+                let token = token::decode(token, jwt_secret);
+                match token {
+                    Ok(v) => TokenParseResult::Token(v),
+                    Err(e) => TokenParseResult::DecodeError(e),
+                }
+            };
 
-        let token = parse_token(&request, &self.app_state.environment.jwt_secret);
+        let token =
+            parse_token(&request, &self.app_state.environment.jwt_secret);
 
         match token {
             TokenParseResult::Token(v) => {
@@ -74,12 +78,21 @@ where
                 })
             }
             TokenParseResult::Missing => {
-                warn!("Attempt access to path {} witn no token", request.path());
-                make_custom_result(request, HttpResponse::Unauthorized().finish())
+                warn!(
+                    "Attempt access to path {} witn no token",
+                    request.path()
+                );
+                make_custom_result(
+                    request,
+                    HttpResponse::Unauthorized().finish(),
+                )
             }
             TokenParseResult::DecodeError(e) => {
                 error!("JWT decode error with {}", e);
-                make_custom_result(request, HttpResponse::InternalServerError().finish())
+                make_custom_result(
+                    request,
+                    HttpResponse::InternalServerError().finish(),
+                )
             }
         }
     }
