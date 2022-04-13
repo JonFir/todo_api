@@ -2,8 +2,12 @@ use crate::common::error::Error;
 
 use super::Claims;
 
-pub fn encode(user_id: String, secret: &str) -> Result<String, Error> {
-    let time = chrono::Utc::now() + chrono::Duration::days(365);
+pub fn encode(
+    user_id: String,
+    secret: &str,
+    minutes: i64,
+) -> Result<String, Error> {
+    let time = chrono::Utc::now() + chrono::Duration::minutes(minutes);
     let claims = Claims {
         sub: user_id,
         exp: time.timestamp() as usize,

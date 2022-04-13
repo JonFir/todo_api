@@ -20,22 +20,25 @@ pub async fn login(
         .ok_or(Error::from(ErrorMeta::USER_NOT_FOUND))?;
     let is_password_correct =
         password_hash::verify(&user.hash, &payload.password)?;
-    if is_password_correct {
-        let user_id = user.id.to_string();
-        let secret = &data.environment.jwt_secret;
-        let token = jwt_auth::token::encode(user_id, secret)?;
-        let response = ResponsePayload {
-            error: 0,
-            message: String::from(""),
-            data: LoginResponse { token },
-        };
-        Ok(response)
-    } else {
+
+    if !is_password_correct {
         return Err(Error::from(ErrorMeta::USER_NOT_FOUND));
     }
+
+    let token = jwt_auth::token::encode(
+        user.id.to_string(),
+        &data.environment.jwt_secret,
+        data.environment.jwt_duration,
+    )?;
+    let response = ResponsePayload {
+        error: 0,
+        message: String::from("User did created"),
+        data: LoginResponse { token },
+    };
+    Ok(response)
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize)]
 pub struct LoginPayload {
     pub login: String,
     pub password: String,
@@ -45,16 +48,4 @@ pub struct LoginPayload {
 #[derive(Serialize)]
 struct LoginResponse {
     token: String,
-}
-
-impl ResponsePayload<LoginResponse> {
-    fn new(user_id: String, secret: &str) -> Result<Self, Error> {
-        let token = jwt_auth::token::encode(user_id, secret)?;
-        let response = ResponsePayload {
-            error: 0,
-            message: String::from(""),
-            data: LoginResponse { token },
-        };
-        Ok(response)
-    }
 }

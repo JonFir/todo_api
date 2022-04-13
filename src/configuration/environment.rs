@@ -6,6 +6,7 @@ pub struct Environment {
     pub port: u16,
     pub database_url: String,
     pub jwt_secret: String,
+    pub jwt_duration: i64,
 }
 
 impl Environment {

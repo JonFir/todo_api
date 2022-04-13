@@ -3,17 +3,24 @@ use std::fmt;
 
 use super::ResponsePayload;
 
-#[derive(Debug)]
+#[repr(u64)]
+#[derive(Debug, Clone, Copy)]
 pub enum ErrorKinde {
-    UserExist,
-    UserNotFound,
-    Internal,
+    UserExist = 1,
+    UserNotFound = 2,
+    Internal = 500,
 }
+
+impl ErrorKinde {
+    fn raw_value(self) -> u64 {
+        self as u64
+    }
+}
+
 #[derive(Debug)]
 pub struct ErrorMeta {
     kinde: ErrorKinde,
     status_code: StatusCode,
-    code: u64,
     message: &'static str,
 }
 #[derive(Debug)]
@@ -26,19 +33,16 @@ impl ErrorMeta {
     pub const USER_EXIST: ErrorMeta = ErrorMeta {
         kinde: ErrorKinde::UserExist,
         status_code: StatusCode::CONFLICT,
-        code: 1,
         message: "User alredy exist",
     };
     pub const USER_NOT_FOUND: ErrorMeta = ErrorMeta {
         kinde: ErrorKinde::UserNotFound,
         status_code: StatusCode::CONFLICT,
-        code: 2,
         message: "User not found",
     };
     pub const INTERNAL: ErrorMeta = ErrorMeta {
         kinde: ErrorKinde::Internal,
         status_code: StatusCode::INTERNAL_SERVER_ERROR,
-        code: 500,
         message: "Internal server error",
     };
 }
@@ -55,8 +59,10 @@ impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "message: {:}, parent: {:?}",
-            self.meta.message, self.parent
+            "code: {:}, message: {:}, parent: {:?}",
+            self.meta.kinde.raw_value(),
+            self.meta.message,
+            self.parent
         )
     }
 }
@@ -68,7 +74,7 @@ impl ResponseError for Error {
 
     fn error_response(&self) -> HttpResponse {
         let body = ResponsePayload::error(
-            self.meta.code,
+            self.meta.kinde.raw_value(),
             String::from(self.meta.message),
         );
         HttpResponse::build(self.status_code()).json(body)

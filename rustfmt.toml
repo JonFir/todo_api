@@ -1,1 +1,6 @@
 max_width = 80
+# chain_width = 40
+# array_width = 40
+# attr_fn_like_width = 40
+# fn_call_width = 40
+# single_line_if_else_max_width = 100
