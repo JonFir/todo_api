@@ -9,18 +9,28 @@ use actix_web::{
 use serde::Deserialize;
 
 use crate::{
-    common::{error::Error, ResponsePayload},
-    configuration::AppState,
+    common::{configuration::AppState, errors::Error, ResponsePayload},
     features::auth::{db, password_hash},
 };
 
 #[post("/register")]
-pub async fn register(payload: Json<RegisterPayload>, data: Data<Arc<AppState>>) -> Result<impl Responder, Error> {
+pub async fn register(
+    payload: Json<RegisterPayload>,
+    data: Data<Arc<AppState>>,
+) -> Result<impl Responder, Error> {
     let hash = password_hash::new(&payload.password)?;
-    db::users::create(&data.database, &payload.login, &hash, &payload.email, false).await?;
-    let respose = ResponsePayload::succes_and_empty("User did registered".into())
-        .customize()
-        .with_status(StatusCode::CREATED);
+    db::users::create(
+        &data.database,
+        &payload.login,
+        &hash,
+        &payload.email,
+        false,
+    )
+    .await?;
+    let respose =
+        ResponsePayload::succes_and_empty("User did registered".into())
+            .customize()
+            .with_status(StatusCode::CREATED);
     Ok(respose)
 }
 

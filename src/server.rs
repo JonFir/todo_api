@@ -1,7 +1,6 @@
 use std::sync::Arc;
 
-use crate::configuration::AppState;
-use crate::features::auth::api_handlers;
+use crate::{common::configuration::AppState, features::auth::api_handlers};
 use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
 
 use crate::features::jwt_auth;
@@ -11,7 +10,10 @@ async fn hello() -> impl Responder {
     HttpResponse::Ok().body("Hello world!")
 }
 
-pub async fn run(address: (String, u16), state: Arc<AppState>) -> Result<(), std::io::Error> {
+pub async fn run(
+    address: (String, u16),
+    state: Arc<AppState>,
+) -> Result<(), std::io::Error> {
     HttpServer::new(move || {
         let app_data = web::Data::new(Arc::clone(&state));
 

@@ -1,11 +1,11 @@
-use configuration::{AppState, Environment};
 use std::{error::Error, sync::Arc};
 
+use common::configuration::{AppState, Environment};
+
+mod common;
 mod db;
 mod features;
 mod server;
-mod configuration;
-mod common;
 
 pub async fn run() -> Result<(), Box<dyn Error>> {
     let environment = Environment::load()?;

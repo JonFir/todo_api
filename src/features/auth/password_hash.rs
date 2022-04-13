@@ -1,7 +1,7 @@
 use argon2::{Config, ThreadMode, Variant, Version};
 use rand::{distributions::Alphanumeric, thread_rng, Rng};
 
-use crate::common::error::Error;
+use crate::common::errors::Error;
 
 pub fn new(password: &str) -> Result<String, Error> {
     let salt: String = thread_rng()

@@ -1,5 +1,7 @@
+use crate::common::configuration::AppState;
+
 use super::{token, Claims};
-use crate::configuration::AppState;
+
 use actix_web::{
     body::EitherBody,
     dev::{forward_ready, Service, ServiceRequest, ServiceResponse, Transform},
@@ -13,7 +15,7 @@ use std::sync::Arc;
 enum TokenParseResult {
     Token(jsonwebtoken::TokenData<Claims>),
     Missing,
-    DecodeError(crate::common::error::Error),
+    DecodeError(crate::common::errors::Error),
 }
 
 pub struct JwtService<S> {

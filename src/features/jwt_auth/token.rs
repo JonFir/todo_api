@@ -1,4 +1,4 @@
-use crate::common::error::Error;
+use crate::common::errors::Error;
 
 use super::Claims;
 

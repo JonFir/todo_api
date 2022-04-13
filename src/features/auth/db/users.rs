@@ -2,7 +2,7 @@ use chrono::{DateTime, Utc};
 use sqlx::{postgres::PgQueryResult, Pool, Postgres};
 
 use crate::{
-    common::error::{Error, ErrorMeta},
+    common::errors::{Error, ErrorMeta},
     features::auth::entity::User,
 };
 

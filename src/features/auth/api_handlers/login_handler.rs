@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
-use crate::common::error::ErrorMeta;
-use crate::common::{error::Error, ResponsePayload};
+use crate::common::errors::ErrorMeta;
+use crate::common::{errors::Error, ResponsePayload};
 use crate::features::auth::db::users;
 use crate::features::auth::password_hash;
 use crate::features::jwt_auth;
