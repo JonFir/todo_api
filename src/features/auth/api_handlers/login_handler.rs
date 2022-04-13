@@ -30,11 +30,10 @@ pub async fn login(
         &data.environment.jwt_secret,
         data.environment.jwt_duration,
     )?;
-    let response = ResponsePayload {
-        error: 0,
-        message: String::from("User did created"),
-        data: LoginResponse { token },
-    };
+    let response = ResponsePayload::succes(
+        "User did created".into(),
+        LoginResponse { token },
+    );
     Ok(response)
 }
 
