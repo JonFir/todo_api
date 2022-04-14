@@ -5,6 +5,7 @@ pub struct Environment {
     pub url: String,
     pub port: u16,
     pub database_url: String,
+    pub database_max_connections: u32,
     pub jwt_secret: String,
     pub jwt_duration: i64,
 }
