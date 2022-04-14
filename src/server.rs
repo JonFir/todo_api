@@ -5,6 +5,7 @@ use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
 
 use crate::features::jwt_auth;
 
+// #TODO: remove demo method
 #[get("/")]
 async fn hello() -> impl Responder {
     HttpResponse::Ok().body("Hello world!")
@@ -23,7 +24,7 @@ pub async fn run(
 
         let api_scope = web::scope("/api")
             .wrap(jwt_auth::Middleware {
-                app_state: state.clone(),
+                app_state: Arc::clone(&state),
             })
             .service(hello);
 
