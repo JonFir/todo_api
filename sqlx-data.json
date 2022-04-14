@@ -1,3 +1,83 @@
 {
-  "db": "PostgreSQL"
+  "db": "PostgreSQL",
+  "0e948043cb1e698167c7d7d4920ef5d72763a7ff6156945074283857191d3415": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Text",
+          "Text",
+          "Bool",
+          "Timestamptz",
+          "Timestamptz",
+          "Bool"
+        ]
+      }
+    },
+    "query": "\n    INSERT INTO users (username, hash, email, email_verified, created, updated, is_delete) \n    VALUES ($1, $2, $3, $4, $5, $6, $7)"
+  },
+  "606364c79e0990deb07dfbe6c32b3d302d083ec5333f3a5ce04113c38a041100": {
+    "describe": {
+      "columns": [
+        {
+          "name": "id",
+          "ordinal": 0,
+          "type_info": "Uuid"
+        },
+        {
+          "name": "username",
+          "ordinal": 1,
+          "type_info": "Text"
+        },
+        {
+          "name": "hash",
+          "ordinal": 2,
+          "type_info": "Text"
+        },
+        {
+          "name": "email",
+          "ordinal": 3,
+          "type_info": "Text"
+        },
+        {
+          "name": "email_verified",
+          "ordinal": 4,
+          "type_info": "Bool"
+        },
+        {
+          "name": "created",
+          "ordinal": 5,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "updated",
+          "ordinal": 6,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "is_delete",
+          "ordinal": 7,
+          "type_info": "Bool"
+        }
+      ],
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      }
+    },
+    "query": "SELECT * FROM users WHERE username = $1"
+  }
 }
