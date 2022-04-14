@@ -1,14 +1,9 @@
 use argon2::{Config, ThreadMode, Variant, Version};
-use rand::{distributions::Alphanumeric, thread_rng, Rng};
 
-use crate::common::errors::Error;
+use crate::{common::errors::Error, features::auth::random_string};
 
 pub fn new(password: &str) -> Result<String, Error> {
-    let salt: String = thread_rng()
-        .sample_iter(&Alphanumeric)
-        .take(128)
-        .map(char::from)
-        .collect();
+    let salt = random_string::new(128);
     static CONFIG: Config = Config {
         variant: Variant::Argon2i,
         version: Version::Version13,

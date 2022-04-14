@@ -1,5 +1,5 @@
 use chrono::{DateTime, Utc};
-use sqlx::{postgres::PgQueryResult, Pool, Postgres};
+use sqlx::{postgres::PgQueryResult, types::Uuid, Pool, Postgres};
 
 use crate::{
     common::errors::{Error, ErrorMeta},
@@ -39,4 +39,19 @@ pub async fn find_by_username(
         .fetch_optional(pool)
         .await
         .map_err(Error::from_parent)
+}
+
+pub async fn update_refresh_token(
+    pool: &Pool<Postgres>,
+    id: &Uuid,
+    refresh_token: Option<&str>,
+) -> Result<PgQueryResult, Error> {
+    sqlx::query!(
+        "UPDATE users SET refresh_token = $1 WHERE id = $2",
+        refresh_token,
+        id,
+    )
+    .execute(pool)
+    .await
+    .map_err(Error::from_parent)
 }

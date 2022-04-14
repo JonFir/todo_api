@@ -3,7 +3,7 @@ use std::sync::Arc;
 use crate::common::errors::ErrorMeta;
 use crate::common::{errors::Error, ResponsePayload};
 use crate::features::auth::db::users;
-use crate::features::auth::password_hash;
+use crate::features::auth::{password_hash, random_string};
 use crate::features::jwt_auth;
 use crate::AppState;
 
@@ -25,14 +25,21 @@ pub async fn login(
         return Err(Error::from(ErrorMeta::USER_NOT_FOUND));
     }
 
-    let token = jwt_auth::token::encode(
+    let refresh_token = random_string::new(256);
+    users::update_refresh_token(&data.database, &user.id, Some(&refresh_token))
+        .await?;
+
+    let access_token = jwt_auth::token::encode(
         user.id.to_string(),
         &data.environment.jwt_secret,
         data.environment.jwt_duration,
     )?;
     let response = ResponsePayload::succes(
         "User did created".into(),
-        LoginResponse { token },
+        LoginResponse {
+            access_token,
+            refresh_token,
+        },
     );
     Ok(response)
 }
@@ -46,5 +53,6 @@ pub struct LoginPayload {
 
 #[derive(Serialize)]
 struct LoginResponse {
-    token: String,
+    access_token: String,
+    refresh_token: String,
 }

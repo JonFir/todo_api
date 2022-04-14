@@ -6,6 +6,7 @@ pub struct User {
     pub id: Uuid,
     pub username: String,
     pub hash: String,
+    pub refresh_token: Option<String>,
     pub email: String,
     pub email_verified: bool,
     pub created: DateTime<Utc>,

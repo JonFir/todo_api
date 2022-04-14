@@ -37,28 +37,33 @@
           "type_info": "Text"
         },
         {
-          "name": "email",
+          "name": "refresh_token",
           "ordinal": 3,
           "type_info": "Text"
         },
         {
-          "name": "email_verified",
+          "name": "email",
           "ordinal": 4,
+          "type_info": "Text"
+        },
+        {
+          "name": "email_verified",
+          "ordinal": 5,
           "type_info": "Bool"
         },
         {
           "name": "created",
-          "ordinal": 5,
-          "type_info": "Timestamptz"
-        },
-        {
-          "name": "updated",
           "ordinal": 6,
           "type_info": "Timestamptz"
         },
         {
-          "name": "is_delete",
+          "name": "updated",
           "ordinal": 7,
+          "type_info": "Timestamptz"
+        },
+        {
+          "name": "is_delete",
+          "ordinal": 8,
           "type_info": "Bool"
         }
       ],
@@ -66,6 +71,7 @@
         false,
         false,
         false,
+        true,
         false,
         false,
         false,
@@ -79,5 +85,18 @@
       }
     },
     "query": "SELECT * FROM users WHERE username = $1"
+  },
+  "a6eea6e08736a905c5cd11361794e8d05b2ab5c33ae7b58aab9c4e0406dd4061": {
+    "describe": {
+      "columns": [],
+      "nullable": [],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Uuid"
+        ]
+      }
+    },
+    "query": "UPDATE users SET refresh_token = $1 WHERE id = $2"
   }
 }
