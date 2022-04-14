@@ -46,9 +46,8 @@ pub async fn login(
 
 #[derive(Deserialize)]
 pub struct LoginPayload {
-    pub login: String,
-    pub password: String,
-    pub email: String,
+    login: String,
+    password: String,
 }
 
 #[derive(Serialize)]
