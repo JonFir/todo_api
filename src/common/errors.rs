@@ -8,6 +8,7 @@ use super::ResponsePayload;
 pub enum ErrorKinde {
     UserExist = 1,
     UserNotFound = 2,
+    AccessTokenMissing = 3,
     Internal = 500,
 }
 
@@ -39,6 +40,11 @@ impl ErrorMeta {
         kinde: ErrorKinde::UserNotFound,
         status_code: StatusCode::CONFLICT,
         message: "User not found",
+    };
+    pub const ACCESS_TOKEN_MISSING: ErrorMeta = ErrorMeta {
+        kinde: ErrorKinde::AccessTokenMissing,
+        status_code: StatusCode::UNAUTHORIZED,
+        message: "Access token missing",
     };
     pub const INTERNAL: ErrorMeta = ErrorMeta {
         kinde: ErrorKinde::Internal,
