@@ -17,7 +17,10 @@ where
 {
     type Body = BoxBody;
 
-    fn respond_to(self, req: &actix_web::HttpRequest) -> actix_web::HttpResponse<Self::Body> {
+    fn respond_to(
+        self,
+        req: &actix_web::HttpRequest,
+    ) -> actix_web::HttpResponse<Self::Body> {
         HttpResponse::Ok().json(self).respond_to(req)
     }
 }

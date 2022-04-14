@@ -94,7 +94,10 @@ impl Error {
         }
     }
 
-    pub fn from_parent<E: 'static + std::error::Error>(error: E) -> Error {
+    pub fn from_parent<E>(error: E) -> Error
+    where
+        E: 'static + std::error::Error,
+    {
         Error {
             meta: ErrorMeta::INTERNAL,
             parent: Some(Box::new(error)),
