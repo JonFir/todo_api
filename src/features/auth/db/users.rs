@@ -41,6 +41,16 @@ pub async fn find_by_username(
         .map_err(Error::from_parent)
 }
 
+pub async fn find_by_id(
+    pool: &Pool<Postgres>,
+    id: &Uuid,
+) -> Result<Option<User>, Error> {
+    sqlx::query_as!(User, "SELECT * FROM users WHERE id = $1", id,)
+        .fetch_optional(pool)
+        .await
+        .map_err(Error::from_parent)
+}
+
 pub async fn update_refresh_token(
     pool: &Pool<Postgres>,
     id: &Uuid,

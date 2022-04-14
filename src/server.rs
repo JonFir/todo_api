@@ -20,7 +20,8 @@ pub async fn run(
 
         let auth_scope = web::scope("/auth")
             .service(api_handlers::register)
-            .service(api_handlers::login);
+            .service(api_handlers::login)
+            .service(api_handlers::refresh_token);
 
         let api_scope = web::scope("/api")
             .wrap(jwt_auth::Middleware {
