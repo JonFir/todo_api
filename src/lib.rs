@@ -1,9 +1,11 @@
 use std::{error::Error, sync::Arc};
 
-use common::configuration::{AppState, Environment};
+use common::{
+    configuration::{AppState, Environment},
+    db,
+};
 
 mod common;
-mod db;
 mod features;
 mod server;
 

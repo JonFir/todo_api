@@ -1,4 +1,5 @@
 pub mod configuration;
+pub mod db;
 pub mod errors;
 mod response_payload;
 
