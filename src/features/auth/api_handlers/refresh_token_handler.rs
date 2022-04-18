@@ -11,6 +11,7 @@ use crate::{
     },
     features::auth::{
         db::users,
+        entity::User,
         errors::Error,
         jwt::{self, token},
         random_string,
@@ -38,16 +39,8 @@ async fn make_response(
     payload: web::Json<Payload>,
     data: web::Data<Arc<AppState>>,
 ) -> Result<Response, Error> {
-    let token = token::extract_from_headers(
-        request.headers(),
-        &data.environment.jwt_secret,
-    )?;
-    let id = token.claims.uuid()?;
-    let user = users::find_by_id(&data.database, &id)
-        .await?
-        .ok_or(Error::UserNotFound)?;
-    let refresh_token = user.refresh_token.unwrap_or("".into());
-    if refresh_token.is_empty() || !refresh_token.eq(&payload.refresh_token) {
+    let user = find_user(&request, &data).await?;
+    if !validate_token(&user.refresh_token, &payload.refresh_token) {
         return Err(Error::UserNotFound);
     }
 
@@ -65,6 +58,27 @@ async fn make_response(
         refresh_token,
     };
     Ok(response)
+}
+
+async fn find_user(
+    request: &HttpRequest,
+    data: &web::Data<Arc<AppState>>,
+) -> Result<User, Error> {
+    let token = token::extract_from_headers(
+        request.headers(),
+        &data.environment.jwt_secret,
+    )?;
+    let id = token.claims.uuid()?;
+    users::find_by_id(&data.database, &id)
+        .await?
+        .ok_or(Error::UserNotFound)
+}
+
+fn validate_token(db_token: &Option<String>, payload_token: &str) -> bool {
+    db_token
+        .as_ref()
+        .map(|db_token| !db_token.is_empty() && db_token.eq(payload_token))
+        .unwrap_or(false)
 }
 
 #[derive(Deserialize)]

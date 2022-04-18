@@ -1,11 +1,15 @@
 use std::sync::Arc;
 
-use crate::common::error_response::{ErrorMeta, ErrorResponse};
-use crate::common::ResponsePayload;
-use crate::features::auth::db::users;
-use crate::features::auth::errors::Error;
-use crate::features::auth::{jwt, password_hash, random_string};
-use crate::AppState;
+use crate::{
+    common::{
+        error_response::{ErrorMeta, ErrorResponse},
+        ResponsePayload,
+    },
+    features::auth::{
+        db::users, errors::Error, jwt, password_hash, random_string,
+    },
+    AppState,
+};
 
 use actix_web::{post, web, Responder};
 use serde::{Deserialize, Serialize};
@@ -22,7 +26,7 @@ pub async fn login_handler(
                 meta: ErrorMeta::USER_NOT_FOUND,
                 parent: e.into(),
             })?;
-    Ok(ResponsePayload::succes("User did created", response))
+    Ok(ResponsePayload::succes("Login was success", response))
 }
 
 async fn make_response(
@@ -32,10 +36,8 @@ async fn make_response(
     let user = users::find_by_username(&data.database, &payload.login)
         .await?
         .ok_or(Error::IncorectLogin)?;
-    let is_password_correct =
-        password_hash::verify(&user.hash, &payload.password)?;
 
-    if !is_password_correct {
+    if !password_hash::verify(&user.hash, &payload.password)? {
         return Err(Error::IncorectPassword);
     }
 
