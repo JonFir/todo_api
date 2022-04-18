@@ -1,9 +1,10 @@
 use std::sync::Arc;
 
-use crate::{common::configuration::AppState, features::auth::api_handlers};
+use crate::{
+    common::configuration::AppState,
+    features::auth::{api_handlers, jwt},
+};
 use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
-
-use crate::features::jwt_auth;
 
 // #TODO: remove demo method
 #[get("/")]
@@ -24,7 +25,7 @@ pub async fn run(
             .service(api_handlers::refresh_token);
 
         let api_scope = web::scope("/api")
-            .wrap(jwt_auth::Middleware {
+            .wrap(jwt::Middleware {
                 app_state: Arc::clone(&state),
             })
             .service(hello);

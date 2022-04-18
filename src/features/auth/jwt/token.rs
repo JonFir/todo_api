@@ -1,7 +1,8 @@
 use actix_web::http::header::HeaderMap;
 
+use crate::features::auth::errors::Error;
+
 use super::Claims;
-use crate::common::errors::{Error, ErrorMeta};
 
 pub fn encode(
     user_id: String,
@@ -18,7 +19,7 @@ pub fn encode(
         &claims,
         &jsonwebtoken::EncodingKey::from_secret(secret.as_ref()),
     )
-    .map_err(Error::from_parent)
+    .map_err(|e| Error::InvalidTokenData(e))
 }
 
 pub fn decode(
@@ -30,7 +31,7 @@ pub fn decode(
         &jsonwebtoken::DecodingKey::from_secret(secret.as_ref()),
         &jsonwebtoken::Validation::default(),
     )
-    .map_err(Error::from_parent)
+    .map_err(|e| Error::InvalidToken(e))
 }
 
 pub fn extract_from_headers(
@@ -47,7 +48,7 @@ pub fn extract_from_headers(
     if token_parts.len() != 2
         || !token_parts.first().unwrap_or(&"").eq(&"Bearer")
     {
-        return Err(Error::from(ErrorMeta::ACCESS_TOKEN_MISSING));
+        return Err(Error::MissingToken);
     }
     let token = token_parts[1];
     decode(token, jwt_secret)

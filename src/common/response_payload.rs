@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 use actix_web::{body::BoxBody, HttpResponse, Responder};
 use serde::Serialize;
 
@@ -7,7 +9,7 @@ pub struct ResponseEmptyData;
 #[derive(Serialize)]
 pub struct ResponsePayload<Data: Serialize> {
     pub error: u64,
-    pub message: String,
+    pub message: Cow<'static, str>,
     pub data: Data,
 }
 
@@ -26,28 +28,37 @@ where
 }
 
 impl ResponsePayload<ResponseEmptyData> {
-    pub fn error(error: u64, message: String) -> Self {
+    pub fn error<S>(error: u64, message: S) -> Self
+    where
+        S: Into<Cow<'static, str>>,
+    {
         ResponsePayload {
             error,
-            message,
+            message: message.into(),
             data: ResponseEmptyData {},
         }
     }
 
-    pub fn succes_and_empty(message: String) -> Self {
+    pub fn succes_and_empty<S>(message: S) -> Self
+    where
+        S: Into<Cow<'static, str>>,
+    {
         ResponsePayload {
             error: 0,
-            message,
+            message: message.into(),
             data: ResponseEmptyData {},
         }
     }
 }
 
 impl<Data: Serialize> ResponsePayload<Data> {
-    pub fn succes(message: String, data: Data) -> Self {
+    pub fn succes<S>(message: S, data: Data) -> Self
+    where
+        S: Into<Cow<'static, str>>,
+    {
         ResponsePayload {
             error: 0,
-            message,
+            message: message.into(),
             data,
         }
     }

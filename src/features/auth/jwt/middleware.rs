@@ -1,4 +1,7 @@
-use crate::common::configuration::AppState;
+use crate::common::{
+    configuration::AppState,
+    error_response::{ErrorMeta, ErrorResponse},
+};
 
 use super::token;
 
@@ -45,7 +48,12 @@ where
             }
             Err(e) => {
                 let (request, _) = request.into_parts();
-                let response = e.error_response().map_into_right_body();
+                let response = ErrorResponse {
+                    meta: ErrorMeta::ACCESS_TOKEN_MISSING,
+                    parent: e.into(),
+                }
+                .error_response()
+                .map_into_right_body();
                 Box::pin(async { Ok(ServiceResponse::new(request, response)) })
             }
         }

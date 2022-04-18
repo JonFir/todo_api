@@ -1,10 +1,7 @@
 use chrono::{DateTime, Utc};
 use sqlx::{postgres::PgQueryResult, types::Uuid, Pool, Postgres};
 
-use crate::{
-    common::errors::{Error, ErrorMeta},
-    features::auth::entity::User,
-};
+use crate::features::auth::{entity::User, errors::Error};
 
 pub async fn create(
     pool: &Pool<Postgres>,
@@ -24,11 +21,13 @@ pub async fn create(
         username, hash, email, email_verified, dt, dt, false,
     )
     .execute(pool)
-    .await
-    .map_err(Error::from_db_error(|code| match code.as_ref() {
-        "23505" => Some(Error::from(ErrorMeta::USER_EXIST)),
-        _ => None,
-    }))
+    .await.map_err(|error| {
+        let e = error.as_database_error().and_then(|e| e.code());
+        match e {
+            Some(e) if e.eq("23505") => Error::DbUserAlreadyExist(error),
+            _ => Error::DbUserCreateFail(error),
+        }
+    })
 }
 
 pub async fn find_by_username(
@@ -38,7 +37,7 @@ pub async fn find_by_username(
     sqlx::query_as!(User, "SELECT * FROM users WHERE username = $1", username,)
         .fetch_optional(pool)
         .await
-        .map_err(Error::from_parent)
+        .map_err(|e| Error::DbUserNotFound(e))
 }
 
 pub async fn find_by_id(
@@ -48,7 +47,7 @@ pub async fn find_by_id(
     sqlx::query_as!(User, "SELECT * FROM users WHERE id = $1", id,)
         .fetch_optional(pool)
         .await
-        .map_err(Error::from_parent)
+        .map_err(|e| Error::DbUserNotFound(e))
 }
 
 pub async fn update_refresh_token(
@@ -63,5 +62,5 @@ pub async fn update_refresh_token(
     )
     .execute(pool)
     .await
-    .map_err(Error::from_parent)
+    .map_err(|e| Error::DbUpdateRefreshTokenFail(e))
 }

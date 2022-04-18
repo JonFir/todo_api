@@ -1,6 +1,6 @@
 use argon2::{Config, ThreadMode, Variant, Version};
 
-use crate::{common::errors::Error, features::auth::random_string};
+use crate::features::auth::{errors::Error, random_string};
 
 pub fn new(password: &str) -> Result<String, Error> {
     let salt = random_string::new(128);
@@ -16,10 +16,10 @@ pub fn new(password: &str) -> Result<String, Error> {
         hash_length: 128,
     };
     argon2::hash_encoded(password.as_bytes(), salt.as_bytes(), &CONFIG)
-        .map_err(Error::from_parent)
+        .map_err(|e| Error::PasswordHashingFail(e))
 }
 
 pub fn verify(hash: &str, password: &str) -> Result<bool, Error> {
     argon2::verify_encoded(hash, password.as_bytes())
-        .map_err(Error::from_parent)
+        .map_err(|e| Error::PasswordVerifyFail(e))
 }
